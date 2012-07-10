@@ -35,17 +35,18 @@
         self.display.text = [self.display.text stringByAppendingString:digit];
     else {
         self.display.text = digit;
+        if (self.verboseDisplay.text != @"")
+            self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@" "];
         self.userIsTypingANumber = YES;
     }
     
-    //verboseDisplay
     self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:digit];
 }
 
 - (IBAction)enterPressed 
 {
     [self.model pushOperand:[self.display.text doubleValue]];
-    self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@" "];
+    
     self.userIsTypingANumber = NO;
     self.decimalPointIsUsed = NO;
 }
@@ -61,7 +62,7 @@
        }
        else {
            self.display.text = @"0.";
-           self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@"0."];
+           self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@" 0."];
            self.userIsTypingANumber = YES;
        }
  
@@ -73,11 +74,27 @@
 }
 - (IBAction)clearPressed 
 {
-    self.verboseDisplay.text = @" ";
+    self.verboseDisplay.text = @"";
     self.display.text = @"0";
     [self.model clearStack];
     self.userIsTypingANumber = NO;
     self.decimalPointIsUsed = NO;
+}
+
+- (IBAction)deletePressed 
+{
+    if (![self.display.text isEqualToString:@"0"]) 
+    {
+        self.display.text = [self.display.text substringToIndex:[self.display.text length] - 1];
+        self.verboseDisplay.text = [self.verboseDisplay.text substringToIndex:[self.verboseDisplay.text length] - 1];
+        
+        if ([self.display.text length] == 0) 
+        {
+            self.display.text = @"0";
+            self.verboseDisplay.text = [self.verboseDisplay.text substringToIndex:[self.verboseDisplay.text length] - 1];
+            self.userIsTypingANumber = NO;
+        }
+    }
 }
 
 - (IBAction)operationPressed:(UIButton *)sender 
@@ -87,8 +104,9 @@
     NSString *operation = sender.currentTitle;
     
     //verboseDisplay
+    self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@" "];
     self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:operation];
-    self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@" = "];
+    self.verboseDisplay.text = [self.verboseDisplay.text stringByAppendingString:@" ="];
     
     double result = [self.model performOperation:operation];
     self.display.text = [NSString stringWithFormat:@"%g", result];
